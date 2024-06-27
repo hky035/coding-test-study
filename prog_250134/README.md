@@ -11,12 +11,12 @@
 코드 자체는 풀이 2가 더 깔끔하지만 실행시간은 풀이 1이 더 우수함 : 풀이 1에서의 loop 수가 절대적으로 적기 때문(풀이 2에서는 반드시 4*4=16회 반복)
 
 
-- 풀이 1 결과
+- 풀이 1 결과 https://github.com/brothergiven/coding-test-study/commit/abe2e2008a04d5f4eb36685d0977ff97a8082f88
 
 ![image](https://github.com/brothergiven/coding-test-study/assets/128305393/eac64d4a-5fbb-4ba8-b6dc-4b63c2798c41)
 
 
 
-- 풀이 2 결과
+- 풀이 2 결과 https://github.com/brothergiven/coding-test-study/commit/abe2e2008a04d5f4eb36685d0977ff97a8082f88
 
 ![image](https://github.com/brothergiven/coding-test-study/assets/128305393/22e2028b-9073-4753-9b2c-df610ce9cc7f)
