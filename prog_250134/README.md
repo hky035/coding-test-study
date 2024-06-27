@@ -12,9 +12,11 @@
 
 
 - 풀이 1 결과
+
 ![image](https://github.com/brothergiven/coding-test-study/assets/128305393/eac64d4a-5fbb-4ba8-b6dc-4b63c2798c41)
 
 
 
 - 풀이 2 결과
+
 ![image](https://github.com/brothergiven/coding-test-study/assets/128305393/22e2028b-9073-4753-9b2c-df610ce9cc7f)
