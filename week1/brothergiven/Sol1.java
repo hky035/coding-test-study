@@ -1,4 +1,6 @@
-class Solution {
+// Sol 1 : PROG 250134 수레 움직이기
+
+public class Sol1 {
     /**
      * 0: 빈칸 1: 빨간 시작 2: 파란 시작 3: 빨간 도착 4: 파란 도착 5: 벽
      */
