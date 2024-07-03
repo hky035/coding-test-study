@@ -1,15 +1,17 @@
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 class Solution {
-    LinkedList<LinkedList<Integer>> win = new LinkedList<>();//승자 정보
-    LinkedList<LinkedList<Integer>> lose = new LinkedList<>();//패자 정보
+    ArrayList<ArrayList<Integer>> win;//승자 정보
+    ArrayList<ArrayList<Integer>> lose;//패자 정보
     Set<Integer> visit = new HashSet<>();//방문처리를 위한 HashSet
     public int solution(int n, int[][] results) {
         int answer = 0;
+        win = new ArrayList<>(n+1);
+        lose = new ArrayList<>(n+1);
         for(int i =0 ;i<=n;i++){
-            LinkedList<Integer>t1 = new LinkedList<>();
-            LinkedList<Integer>t2 = new LinkedList<>();
+            ArrayList<Integer>t1 = new ArrayList<>(n+1);
+            ArrayList<Integer>t2 = new ArrayList<>(n+1);
             win.add(t1);
             lose.add(t2);
         }
