@@ -1,6 +1,4 @@
 
-import java.util.Arrays;
-
 /**
  * Sol2 : PROG 42860 조이스틱
  */
@@ -46,37 +44,48 @@ public class Sol2 {
             answer += marking(i);
         }
 
-        int arr[] = findA(name);
+        int countsA[] = findA(name);
         // arr 에서 값이 가장 큰 놈찾기(큰 놈 두 개 이상이면?)
         // 연속한 A가 가장 큰 지점을 알아내야함. 이 때 시작지점이랑 더 가까운 놈이냐 혹은 더 먼 놈이냐
 
-        int maxIDXLeft = 0;
-        for (int i = 0; i < arr.length; i++) {
-            if (arr[maxIDXLeft] < arr[i])
-                maxIDXLeft = i;
-        }
+        int val = N-1;
 
-        int maxIDXRight = N - 1;
-        for (int i = N - 2; i >= 0; i--) {
-            if (arr[maxIDXRight] < arr[i])
-                maxIDXRight = i;
-        }
+        int startIDX = 0;
 
-        int start = (maxIDXLeft < N - 1 - maxIDXRight) ? maxIDXLeft : maxIDXRight; // 왼쪽 끝
-        int end = (start + arr[start] - 1) % N; // 오른쪽 끝
-        int val;
-        if (start - 1 == end) { // 전부 A거나 전부 A가 아님
-            if (name.charAt(start) == 'A')
-                answer += 0;
-            else
-                answer += N - 1;
+        while (startIDX != N && name.charAt(startIDX) == 'A') { // A가 아닌 지점에서 시작.
+            startIDX++;
+        }
+        System.out.println("STARTIDX:  " + startIDX);
+        if (startIDX == N) { // 전부 A
+            val = 0;
         } else {
-            System.out.println(start + ", " + end);
-            answer += val = Math.min(2 * (N - end) + start, 2 * start + N - end);
-            System.out.println(val);
+            for (int i = 0; i < countsA.length; i++) {
+                if (name.charAt((startIDX + i) % N) == 'A') {
+                    int left, right, candi; // 연속된 A를 기준으로 left : 왼쪽에 있는 문자의 개수, right : 오른쪽에 있는 문자의 개수
+                    right = left = (i + startIDX) % N;
+                    
+                    while(name.charAt((right + 1) % N ) == 'A' && (right + 1) % N != left)
+                        right = (right + 1) % N;
+                    System.out.println("LEFT: " + left + ", RIGHT: " + right);
+
+
+                    if(left > right){
+                        candi = left - right - 1 + Math.min(right, N - left);
+                    } else if (left == 0) {
+                        candi = N - 1 - right;
+                    } else {
+                        candi = left - 1 + N - right - 1 + Math.min(left - 1, N - right - 1);
+                    }
+                    System.out.println("CANDI : " + candi);
+                    val = Math.min(val, candi);
+                    i += countsA[left];
+                }
+            }
+        
+
         }
 
-
+        answer += val;
         return answer;
     }
 
@@ -92,6 +101,8 @@ public class Sol2 {
         return Math.min(name.charAt(cursor) - 'A', 'Z' - name.charAt(cursor) + 1);
     }
 
+    boolean visited[];
+
     /**
      * 
      * @param name 이름
@@ -99,7 +110,9 @@ public class Sol2 {
      */
     int[] findA(String name) {
         int[] list = new int[name.length()];
+
         for (int i = 0; i < name.length(); i++) {
+            visited = new boolean[name.length()];
             list[i] = countA(name, i);
         }
         // 이배열에서 값이 가장 큰 놈을 고름
@@ -109,16 +122,17 @@ public class Sol2 {
     }
 
     int countA(String name, int idx) {
-        if (name.charAt(idx) != 'A')
+        if (name.charAt(idx) == 'A' && !visited[idx]) {
+            visited[idx] = true;
+            return 1 + countA(name, (idx + 1) % name.length()) + countA(name, (idx == 0) ? name.length() - 1 : idx - 1);
+        } else
             return 0;
-        else
-            return 1 + countA(name, (idx + 1) % name.length());
     }
 
-    public static void main(String[] args) {
-
+    public static void main(String[] args){
         Sol2 s = new Sol2();
-        String name = "JAN";
+        String name = "AABAAABAA";
+        
         System.out.println(s.solution(name));
 
     }
