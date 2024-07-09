@@ -40,20 +40,22 @@ public class Sol3 {
             graph[i] = new ArrayList<Integer>();
             ranked[i][i] = true;
         }
+
         for(int[] arr : results){
             graph[arr[0]].add(arr[1]);
         }
+
         for(int i = 1; i <= n; i++){
             boolean visited[] = new boolean[n+1];
             DFS(i, i, visited);
         }
+
         for(int i = 1; i <= n; i++){
-            boolean check = true;
-            for(int j = 1; j <= n && check; j++){
+            int check = 1;
+            for(int j = 1; j <= n && check == 1; j++)
                 if(!ranked[i][j])
-                    check = false;
-            }
-            answer += check ? 1 : 0;
+                    check = 0;
+            answer += check;
         }
         return answer;
 
