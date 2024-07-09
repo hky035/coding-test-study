@@ -32,22 +32,17 @@ public class Sol2 {
      * 따라서 연속한 A가 가장 큰 지점을 알아내야 한당!
      */
 
-    String name;
-    int N;
 
     // ex. DDAAADAAC
     public int solution(String name) {
         int answer = 0;
-        this.name = name;
-        N = name.length();
-        for (int i = 0; i < N; i++) {
-            answer += marking(i);
-        }
+        int N = name.length();
 
-        int countsA[] = findA(name);
         // arr 에서 값이 가장 큰 놈찾기(큰 놈 두 개 이상이면?)
         // 연속한 A가 가장 큰 지점을 알아내야함. 이 때 시작지점이랑 더 가까운 놈이냐 혹은 더 먼 놈이냐
-
+        for (int i = 0; i < N; i++) {
+            answer += marking(name, i);
+        }
         int val = N-1;
 
         int startIDX = 0;
@@ -59,15 +54,13 @@ public class Sol2 {
         if (startIDX == N) { // 전부 A
             val = 0;
         } else {
-            for (int i = 0; i < countsA.length; i++) {
+            for (int i = 0; i < N; i++) {
                 if (name.charAt((startIDX + i) % N) == 'A') {
                     int left, right, candi; // 연속된 A를 기준으로 left : 왼쪽에 있는 문자의 개수, right : 오른쪽에 있는 문자의 개수
                     right = left = (i + startIDX) % N;
                     
                     while(name.charAt((right + 1) % N ) == 'A' && (right + 1) % N != left)
                         right = (right + 1) % N;
-                    System.out.println("LEFT: " + left + ", RIGHT: " + right);
-
 
                     if(left > right){
                         candi = left - right - 1 + Math.min(right, N - left);
@@ -76,9 +69,9 @@ public class Sol2 {
                     } else {
                         candi = left - 1 + N - right - 1 + Math.min(left - 1, N - right - 1);
                     }
-                    System.out.println("CANDI : " + candi);
+                
                     val = Math.min(val, candi);
-                    i += countsA[left];
+                    i += (right >= left) ? right - left + 1 : N - (left - right) + 1;
                 }
             }
         
@@ -97,37 +90,10 @@ public class Sol2 {
      * @param cursor 조이스틱을 움직일 현재 cursor의 위치
      * @return 조이스틱을 움직이기 위해 조작한 횟수
      */
-    int marking(int cursor) {
+    int marking(String name, int cursor) {
         return Math.min(name.charAt(cursor) - 'A', 'Z' - name.charAt(cursor) + 1);
     }
 
-    boolean visited[];
-
-    /**
-     * 
-     * @param name 이름
-     * @return 각 cursor 위치에 대해서 인접한 A의 개수 반환(오른쪽으로만 이동)
-     */
-    int[] findA(String name) {
-        int[] list = new int[name.length()];
-
-        for (int i = 0; i < name.length(); i++) {
-            visited = new boolean[name.length()];
-            list[i] = countA(name, i);
-        }
-        // 이배열에서 값이 가장 큰 놈을 고름
-        // 값이 가장 큰 놈이 2개 이상이면 0번 인덱스를 기준으로 왼쪽, 오른쪽 검사해서 더 가까운놈
-
-        return list;
-    }
-
-    int countA(String name, int idx) {
-        if (name.charAt(idx) == 'A' && !visited[idx]) {
-            visited[idx] = true;
-            return 1 + countA(name, (idx + 1) % name.length()) + countA(name, (idx == 0) ? name.length() - 1 : idx - 1);
-        } else
-            return 0;
-    }
 
     public static void main(String[] args){
         Sol2 s = new Sol2();
