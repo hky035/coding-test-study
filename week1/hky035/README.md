@@ -17,11 +17,17 @@ dfs가 다음 함수를 호출할 때 `depth+1`을 하여 해당 깊이(실행 �
 해당 코드에서는 `canMove()` 함수를 통해서 포인트의 이동 가능 여부를 체크한다.   
 Red와 Blue가 둘 다 End에 도착하지 않았을 경우 현재 Red(Blue)와 nextBlue(nextRed)의 위치가 동일하면 `false`를 리턴하도록 하여 해당 경우가 통과되지 않도록 설계하였다.
 
+![image](https://github.com/hky035/coding-test-study/assets/128910345/5ecbc8f3-937f-409c-9649-0735616330a2)
+
 그러나 예를 들어 다음 그림과 같이 이동하는 경우에도 `canMove()`에서도 `false`가 리턴하기 때문에 문제가 발생하였다. 다음 부분을 고려하기 위해 `Point` 클래스에 `equals()` 메서드를 오버라이드하여 
 ```
 if(!(red.equals(nextBlue) && blue.equals(nextRed)) && ... }
 ```
 로 해당 경우를 정확히 체크할 수 있었다.
+
+### 실행결과
+![image](https://github.com/hky035/coding-test-study/assets/128910345/6a7826b3-5fe8-4863-a553-dffbfb4dbaa2)
+
 
 ## 문제 2. 42860 조이스틱
 📌 링크 : https://school.programmers.co.kr/learn/courses/30/lessons/42860
