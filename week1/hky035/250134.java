@@ -1,11 +1,10 @@
-package lv3;
-
-
-
-public class lv3_250134 {
+public class Solution {
 	
 	class Point {
 		int x,y;
+		
+		public Point() {
+		}
 		
 		public Point(int x, int y) {
 			this.x = x;
@@ -26,106 +25,130 @@ public class lv3_250134 {
 
 		public void setY(int y) {
 			this.y = y;
-		}	
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			Point point = (Point)obj;
+			if(this.x == point.getX() && this.y == point.getY())
+				return true;
+			else
+				return false;
+		}
+
 	}
 	
-	private boolean[][] visitedR;
-	private boolean[][] visitedB;
-	private int[] dx = {0,0,-1,1}; // 상하좌우
-	private int[] dy = {1,-1,0,0};  
-	private boolean redEnd;
-	private boolean blueEnd;
-	final static int MAX_VALUE = 10000;
+	boolean [][] visitedR;
+	boolean [][] visitedB;
+	static int[][] dir = {{0,1},{1,0},{0,-1},{-1,0}}; // 상 우 하 좌(시계 방향)
 	
-	int maxWidth = 0;
-	int maxHeight = 0;
-	
-	public int solution(int[][] maze ) {
-		Point red = null;
-		Point blue = null;
-		
+	public int solution(int[][] maze) {
+		int answer = Integer.MAX_VALUE;
 		visitedR = new boolean[maze.length][maze[0].length];
 		visitedB = new boolean[maze.length][maze[0].length];
 		
-		maxHeight = maze.length;
-		maxWidth = maze[0].length;
+		Point red = new Point();
+		Point blue = new Point();
 		
-		// 시작 위치 
+		findInitPos(red, blue, maze); // 마지막 위치도 기억할 필요 있나? X
+		
+		answer = findPath(red, blue, maze, 0);
+		
+		return (answer == Integer.MAX_VALUE) ? 0 : answer;
+	}
+	
+	private int findPath(Point red, Point blue, int[][] maze, int depth) {
+		boolean redEnd = maze[red.getX()][red.getY()] == 3;
+        boolean blueEnd = maze[blue.getX()][blue.getY()] == 4;
+        
+		if(redEnd && blueEnd) { // 둘다 도착 => 현재 depth 리턴
+			return depth;
+		}
+		
+		int minDepth = Integer.MAX_VALUE;
+		// 움직일 수 있는 지 체크
+		if(redEnd && !blueEnd) {
+			for(int i = 0 ; i < 4 ; i++ ) {
+				Point nextBlue = new Point(blue.getX() + dir[i][0], blue.getY() + dir[i][1]);
+				if(canMove(red, nextBlue, maze)) {
+					if(!visitedB[nextBlue.getX()][nextBlue.getY()]) {
+						visitedB[nextBlue.getX()][nextBlue.getY()] = true;
+						minDepth = Math.min(minDepth, findPath(red, nextBlue, maze, depth+1));
+						visitedB[nextBlue.getX()][nextBlue.getY()] = false;
+					}
+				}
+			}
+		}
+		else if(!redEnd && blueEnd) {
+			for(int i = 0 ; i < 4 ; i++ ) {
+				Point nextRed = new Point(red.getX() + dir[i][0], red.getY() + dir[i][1]);
+				if(canMove(nextRed, blue, maze)) {
+					if(!visitedR[nextRed.getX()][nextRed.getY()]) {
+						visitedR[nextRed.getX()][nextRed.getY()] = true;
+						minDepth = Math.min(minDepth, findPath(nextRed, blue, maze, depth+1));
+						visitedR[nextRed.getX()][nextRed.getY()] = false;
+					}
+				}
+			}
+		}
+		else if(!redEnd && !blueEnd) {
+			for(int i = 0 ; i < 4 ; i++) {
+				for(int j = 0 ; j < 4 ; j++) {
+					Point nextRed = new Point(red.getX() + dir[i][0], red.getY() + dir[i][1]);
+					Point nextBlue = new Point(blue.getX() + dir[j][0], blue.getY() + dir[j][1]);
+					if(!(red.equals(nextBlue) && blue.equals(nextRed)) && canMove(nextRed, nextBlue, maze)) {
+						if(!visitedR[nextRed.getX()][nextRed.getY()] && !visitedB[nextBlue.getX()][nextBlue.getY()]) {
+							visitedR[nextRed.getX()][nextRed.getY()] = true;
+							visitedB[nextBlue.getX()][nextBlue.getY()] = true;
+							minDepth = Math.min(minDepth, findPath(nextRed, nextBlue, maze, depth+1));
+							visitedR[nextRed.getX()][nextRed.getY()] = false;
+							visitedB[nextBlue.getX()][nextBlue.getY()] = false;
+						}
+						
+					}
+				}
+			}
+		}
+		
+		return minDepth;
+	}
+	
+	private boolean canMove(Point red, Point blue, int[][] maze) {
+		int rX = red.getX();
+		int rY = red.getY();
+		int bX = blue.getX();
+		int bY = blue.getY();
+		
+		if(rX >= maze.length || rX < 0 || rY >= maze[0].length || rY < 0 
+		   || bX >= maze.length || bX < 0 || bY >= maze[0].length || bY < 0)
+			return false;
+		
+		if(rX == bX && rY == bY)
+			return false;
+		
+		if(maze[rX][rY] == 5 || maze[bX][bY] == 5)
+			return false;
+		
+		else
+			return true;
+	}
+	
+	
+
+	private void findInitPos(Point red, Point blue, int[][] maze) {
 		for(int i = 0 ; i < maze.length ; i++) {
 			for(int j = 0 ; j < maze[i].length ; j++) {
-				if(maze[i][j] == 1) red = new Point(i,j);
-				if(maze[i][j] == 2) blue = new Point(i,j);
+				if(maze[i][j] == 1) {
+					red.setX(i);
+					red.setY(j);
+					visitedR[i][j] = true;
+				}
+				else if(maze[i][j] == 2) {
+					blue.setX(i);
+					blue.setY(j);
+					visitedB[i][j] = true;
+				}
 			}
 		}
-		
-		visitedR[red.getX()][red.getY()] = true;
-		visitedB[blue.getX()][blue.getY()] = true;
-		
-		
-		
-		
-		int answer = findPath(red, blue, 0, maze);
-		return (answer == MAX_VALUE) ? 0 : answer; 
 	}
-	
-	private Point nextPoint(int x, int y, int move) {
-		int nextX = x + dx[move];
-		int nextY = y + dy[move];
-		
-		return new Point(nextX,nextY);
-	}
-	
-	// can move check
-	private boolean canMove(Point red, Point blue, Point nextRed, Point nextBlue, int[][] maze) {
-		if( nextRed.getX() < 0 || nextRed.getY() < 0 || nextRed.getX() >= maxHeight || nextRed.getY() >= maxWidth 
-				|| nextBlue.getX() < 0 || nextBlue.getY() < 0 || nextBlue.getX() >= maxHeight || nextBlue.getY() >= maxWidth
-				|| maze[nextRed.getX()][nextRed.getY()] == 5 || maze[nextBlue.getX()][nextBlue.getY()] == 5)
-			return false;
-		
-		if((red.getX() == nextBlue.getX() && red.getY() == nextBlue.getY()) && (blue.getX() == nextRed.getX()) && (blue.getY() == nextRed.getY()))
-			return false;
-		
-		if((!redEnd && visitedR[nextRed.getX()][nextRed.getY()]) || ( !blueEnd && visitedB[nextBlue.getX()][nextBlue.getY()]))
-			return false;
-		
-		if(nextRed.getX() == nextBlue.getX() && nextRed.getY() == nextBlue.getY())
-			return false;
-		
-		return true;
-	}
-	
-	private int findPath(Point red, Point blue, int answer, int[][] maze) {
-		if(redEnd && blueEnd) return answer;
-
-		int result = MAX_VALUE;
-		
-		for(int i = 0 ; i < 4 ; i++) {
-			for(int j = 0 ; j < 4; j++) {
-				Point nextRed = (!redEnd) ? nextPoint(red.getX(), red.getY(), i) : red;
-				Point nextBlue = (!redEnd) ? nextPoint(blue.getX(), blue.getY(), j) : blue;
-				
-				if(!canMove(red, blue, nextRed, nextBlue, maze)) 
-					continue;
-				
-				visitedR[nextRed.getX()][nextRed.getY()] = true;
-				visitedB[nextBlue.getX()][nextBlue.getY()] = true;
-				
-				if(maze[nextRed.getX()][nextRed.getY()] == 3)
-					redEnd = true;
-				if(maze[nextBlue.getX()][nextBlue.getY()] == 4)
-					blueEnd = true;
-				
-				result = Math.min(result, findPath(nextRed, nextBlue, answer+1, maze));
-				
-				redEnd = false;
-				blueEnd = false;
-				visitedR[nextRed.getX()][nextRed.getY()] = false;
-				visitedB[nextBlue.getX()][nextBlue.getY()] = false;
-				
-			}
-		}
-		
-		return result;
-	}
-	
 }
