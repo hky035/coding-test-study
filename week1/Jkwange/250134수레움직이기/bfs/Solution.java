@@ -2,23 +2,26 @@ import java.util.Queue;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.HashSet;
-import java.util.Arrays;
 import java.util.Set;
 
 class Solution {
 
     class State {
         int redX, redY, blueX, blueY, turn;
+        Set<String> redVisited;
+        Set<String> blueVisited;
 
-        State(int redX, int redY, int blueX, int blueY, int turn) {
+        State(int redX, int redY, int blueX, int blueY, int turn, Set<String> redVisited, Set<String> blueVisited) {
             this.redX = redX;
             this.redY = redY;
             this.blueX = blueX;
             this.blueY = blueY;
             this.turn = turn;
+            this.redVisited = new HashSet<>(redVisited);
+            this.blueVisited = new HashSet<>(blueVisited);
         }
 
-        
+        @Override
         public boolean equals(Object o) {
             if (this == o)
                 return true;
@@ -35,11 +38,11 @@ class Solution {
     }
 
     public int solution(int[][] maze) {
-        int[][] Information = new int[4][2]; // 4개의 저장장소: 빨강, 파랑, 빨강 목적지, 파랑 목적지
+        int[][] Information = new int[4][2];
         int rows = maze.length;
         int cols = maze[0].length;
 
-        // 좌표 찾기
+        
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 if (maze[i][j] != 0 && maze[i][j] != 5) {
@@ -48,50 +51,69 @@ class Solution {
                 }
             }
         }
-        System.out.println(Arrays.deepToString(Information));
+
         int[][] directions = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
         Queue<State> queue = new LinkedList<>();
-        Set<State> set = new HashSet<>();
+        Set<State> visited = new HashSet<>();
 
-        State init = new State(Information[0][0], Information[0][1], Information[1][0], Information[1][1], 0);
+        Set<String> initialRedVisited = new HashSet<>();
+        Set<String> initialBlueVisited = new HashSet<>();
+        initialRedVisited.add(Information[0][0] + "," + Information[0][1]);
+        initialBlueVisited.add(Information[1][0] + "," + Information[1][1]);
+
+        State init = new State(Information[0][0], Information[0][1], Information[1][0], Information[1][1], 0, initialRedVisited, initialBlueVisited);
         queue.add(init);
-        set.add(init);
+        visited.add(init);
 
-        
-        int redTurns = 0;
-        int blueTurns = 0;
         while (!queue.isEmpty()) {
             State current = queue.poll();
 
-            boolean checkRed = current.redX == Information[2][0] && current.redY == Information[2][1];
-            boolean checkBlue = current.blueX == Information[3][0] && current.blueY == Information[3][1];
-            if (checkRed && checkBlue)
+            boolean redAtDestination = current.redX == Information[2][0] && current.redY == Information[2][1];
+            boolean blueAtDestination = current.blueX == Information[3][0] && current.blueY == Information[3][1];
+            if (redAtDestination && blueAtDestination) {
                 return current.turn;
-            if (checkRed) redTurns = current.turn;
-            if (checkBlue) blueTurns = current.turn;
-            if(checkRed && checkBlue) return Math.max(redTurns, blueTurns);
+            }
 
-            for (int[] direction : directions) {
-                int nextRedX = current.redX + direction[0];
-                int nextRedY = current.redY + direction[1];
-                int nextBlueX = current.blueX + direction[0];
-                int nextBlueY = current.blueY + direction[1];
+            for (int[] redDirection : directions) {
+                int nextRedX = current.redX + redDirection[0];
+                int nextRedY = current.redY + redDirection[1];
 
-                boolean checkValidRed = !isValid(nextRedX, nextRedY, rows, cols, maze);
-                boolean checkValidBlue = !isValid(nextBlueX, nextBlueY, rows, cols, maze);
-                boolean isSamePos = nextRedX == nextBlueX && nextRedY == nextBlueY;
-
-                if (checkValidRed || checkValidBlue) {
-                    continue;
-                }
-                if (isSamePos) {
+                if (redAtDestination) {
+                    nextRedX = current.redX;
+                    nextRedY = current.redY;
+                } else if (!isValid(nextRedX, nextRedY, rows, cols, maze) || current.redVisited.contains(nextRedX + "," + nextRedY)) {
                     continue;
                 }
 
-                State nextState = new State(nextRedX, nextRedY, nextBlueX, nextBlueY, current.turn + 1);
-                if (!set.contains(nextState)) {
-                    set.add(nextState);
-                    queue.add(nextState);
+                for (int[] blueDirection : directions) {
+                    int nextBlueX = current.blueX + blueDirection[0];
+                    int nextBlueY = current.blueY + blueDirection[1];
+
+                    if (blueAtDestination) {
+                        nextBlueX = current.blueX;
+                        nextBlueY = current.blueY;
+                    } else if (!isValid(nextBlueX, nextBlueY, rows, cols, maze) || current.blueVisited.contains(nextBlueX + "," + nextBlueY)) {
+                        continue;
+                    }
+
+                    if (nextRedX == nextBlueX && nextRedY == nextBlueY) {
+                        continue;
+                    }
+
+                    if (nextRedX == current.blueX && nextRedY == current.blueY && nextBlueX == current.redX && nextBlueY == current.redY) {
+                        continue;
+                    }
+
+                    Set<String> newRedVisited = new HashSet<>(current.redVisited);
+                    Set<String> newBlueVisited = new HashSet<>(current.blueVisited);
+                    newRedVisited.add(nextRedX + "," + nextRedY);
+                    newBlueVisited.add(nextBlueX + "," + nextBlueY);
+
+                    State nextState = new State(nextRedX, nextRedY, nextBlueX, nextBlueY, current.turn + 1, newRedVisited, newBlueVisited);
+                    if (!visited.contains(nextState)) {
+                        visited.add(nextState);
+                        queue.add(nextState);
+                    }
                 }
             }
         }
