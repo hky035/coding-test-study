@@ -1,7 +1,7 @@
 package week2.brothergiven;
 
 import java.util.LinkedList;
-import java.util.ArrayList;
+import java.util.PriorityQueue;
 import java.util.Collections;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -10,7 +10,7 @@ public class Sol1 {
     // tickets[i][0] : 출발, tickets[i][1] : 도착
     // 주어진 모든 항공권 사용하여 방문하는 공항 경로 return
     // 경로가 2개 이상이라면 알파벳 순서
-    ArrayList<String[]> results;
+    PriorityQueue<String[]> results;
     String[][] tickets;
     boolean used[];
     int N;
@@ -18,12 +18,11 @@ public class Sol1 {
         N = tickets.length;
         this.tickets = tickets;
         used = new boolean[N];
-        results = new ArrayList<>();
+        results = new PriorityQueue<String[]>(new Comp<>());
         LinkedList<String> start = new LinkedList<>();
         start.add("ICN");
         findRoute("ICN", start);
-        Collections.sort(results, new Comp<String>());
-        return results.get(0);
+        return results.poll();
     }
 
     class Comp<T> implements Comparator<T[]>{
