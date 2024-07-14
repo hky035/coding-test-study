@@ -1,38 +1,20 @@
-import java.util.Arrays;
-import java.util.ArrayList;
+import java.util.PriorityQueue;
 
 class Solution {
-    ArrayList<String> answer = new ArrayList<>();
-    boolean[] visited;
-    String[][] tickets;
-    
-    public boolean travel(String current, int turn) {
-        answer.add(current);
-        if (turn == tickets.length + 1) {
-            return true;
-        }
-
-        for (int i = 0; i < tickets.length; i++) {
-            if (!visited[i] && tickets[i][0].equals(current)) {
-                visited[i] = true;
-                if (travel(tickets[i][1], turn + 1)) {
-                    return true;
-                }
-                visited[i] = false;
-            }
+    public int solution(int[] scoville, int K) {
+        int answer = 0;
+        PriorityQueue<Integer> q = new PriorityQueue<>();
+        for (int food : scoville) 
+            q.add(food);
+        
+        while(q.peek() < K) {
+            if(q.size() <= 1) return -1;
+            int first = q.poll();
+            int second = q.poll();
+            q.add(first + (second << 1));
+            answer++;
         }
         
-        answer.remove(answer.size() - 1);
-        return false;
-    }
-    
-    public String[] solution(String[][] tickets) {
-        Arrays.sort(tickets, (a, b) -> a[1].compareTo(b[1]));
-        visited = new boolean[tickets.length];
-        this.tickets = tickets;
-
-        travel("ICN", 1);
-
-        return answer.toArray(new String[answer.size()]);
+        return answer;
     }
 }
